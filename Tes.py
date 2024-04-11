@@ -4,16 +4,16 @@ import json
 
 
 def get_email():
-    endpoint = 'https://www.1secmail.com/api/v1/?action=genRandomMail>
+    endpoint = 'https://www.1secmail.com/api/v1/?action=genRandomMailbox&count=1'
     return requests.get(endpoint).json()[0]
 
 
 def register_user(email, nickname, invite_code):
     url = 'https://onmi-waitlist.rand.wtf/api/register'
-
+    
     headers = {
         'Host': 'onmi-waitlist.rand.wtf',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; >
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:124.0) Gecko/20100101 Firefox/124.0',
         'Accept': '*/*',
         'Accept-Language': 'id,en-US;q=0.7,en;q=0.3',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -26,17 +26,17 @@ def register_user(email, nickname, invite_code):
         'Sec-Fetch-Site': 'cross-site',
         'Te': 'trailers'
     }
-
+    
     payload = {
         'email': email,
         'nickname': nickname,
         'password': 'Helloworld123',
         'password_confirmation': 'Helloworld123',
         'invite_code': invite_code
-}
-
-    response = requests.post(url, headers=headers, data=json.dumps(pa>
-
+    }
+    
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    
     try:
         data = response.json()
         return data
@@ -45,12 +45,12 @@ def register_user(email, nickname, invite_code):
 
 
 def get_inbox(login, domain):
-    endpoint = f'https://www.1secmail.com/api/v1/?action=getMessages&>
+    endpoint = f'https://www.1secmail.com/api/v1/?action=getMessages&login={login}&domain={domain}'
     return requests.get(endpoint).json()
 
 
 def get_message(login, domain, id):
-    endpoint = f'https://www.1secmail.com/api/v1/?action=readMessage&>
+    endpoint = f'https://www.1secmail.com/api/v1/?action=readMessage&login={login}&domain={domain}&id={id}'
     message_data = requests.get(endpoint).json()
     if 'body' in message_data:
         return message_data['body']
@@ -64,7 +64,7 @@ def extract_links_from_html(html_content):
 
 
 def extract_verify_link(links):
-for link in links:
+    for link in links:
         if re.search(r'https://onmi.io/\?verify_code=[\w-]+', link):
             return link.split('=')[1]
     return None
@@ -72,10 +72,10 @@ for link in links:
 
 def activate_account(code):
     url = 'https://onmi-waitlist.rand.wtf/api/activate'
-
+    
     headers = {
         'Host': 'onmi-waitlist.rand.wtf',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; >
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:124.0) Gecko/20100101 Firefox/124.0',
         'Accept': '*/*',
         'Accept-Language': 'id,en-US;q=0.7,en;q=0.3',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -88,15 +88,15 @@ def activate_account(code):
         'Sec-Fetch-Site': 'cross-site',
         'Te': 'trailers'
     }
-
+    
     payload = {
         'code': code
     }
-
-    response = requests.post(url, headers=headers, data=json.dumps(pa>
-
+    
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    
     try:
-data = response.json()
+        data = response.json()
         return data
     except json.decoder.JSONDecodeError:
         return "Success verify Account"
@@ -125,7 +125,8 @@ for _ in range(n):
     id = get_inbox(login, domain)[0]['id']
 
     message_body = get_message(login, domain, id)
-if message_body:
+
+    if message_body:
         links = extract_links_from_html(message_body)
         verify_code = extract_verify_link(links)
         if verify_code:
